@@ -3,13 +3,13 @@ resource "aws_wafv2_ip_set" "this" {
 
   ip_address_version = "IPV4"
   scope              = "CLOUDFRONT"
-  name        = "${var.waf_name}-ipset"
-  description = "${var.waf_name}-ipset"
+  name        = "${var.name}-ipset"
+  description = "${var.name}-ipset"
   addresses   = var.allow_ip_list
 }
 
 resource "aws_wafv2_web_acl" "this" {
-  name = var.waf_name
+  name = var.name
 
   scope = "CLOUDFRONT"
 
@@ -19,14 +19,14 @@ resource "aws_wafv2_web_acl" "this" {
 
   visibility_config {
     cloudwatch_metrics_enabled = var.cloudwatch_metrics_enabled 
-    metric_name                = var.waf_name
+    metric_name                = var.name
     sampled_requests_enabled   = var.sampled_requests_enabled  
   }
 
   dynamic "rule" {
     for_each = length(var.allow_custom_header) == 0 ? [] : var.allow_custom_header
     content {
-      name     = "${var.waf_name}-allow-header-rule"
+      name     = "${var.name}-allow-header-rule"
       priority = 1
       action {
         allow {}
@@ -49,7 +49,7 @@ resource "aws_wafv2_web_acl" "this" {
 
       visibility_config {
         cloudwatch_metrics_enabled = var.cloudwatch_metrics_enabled 
-        metric_name                = "${var.waf_name}-allow-header-rule"
+        metric_name                = "${var.name}-allow-header-rule"
         sampled_requests_enabled   = var.sampled_requests_enabled  
       }
     }
@@ -58,7 +58,7 @@ resource "aws_wafv2_web_acl" "this" {
   dynamic "rule" {
     for_each = length(var.allow_ip_list) == 0 ? [] : [1]
     content {
-      name     = "${var.waf_name}-allow-ip-rule"
+      name     = "${var.name}-allow-ip-rule"
       priority = 2
 
       action {
@@ -77,7 +77,7 @@ resource "aws_wafv2_web_acl" "this" {
 
       visibility_config {
         cloudwatch_metrics_enabled = var.cloudwatch_metrics_enabled 
-        metric_name                = "${var.waf_name}-allow-ip-rule"
+        metric_name                = "${var.name}-allow-ip-rule"
         sampled_requests_enabled   = var.sampled_requests_enabled  
       }
     }
@@ -86,7 +86,7 @@ resource "aws_wafv2_web_acl" "this" {
   dynamic "rule" {
     for_each = var.basic_auth_config.user == "" ? [] : [var.basic_auth_config]
     content {
-      name     = "${var.waf_name}-allow-basicauth-rule"
+      name     = "${var.name}-allow-basicauth-rule"
       priority = 3
       action {
         block {
@@ -121,7 +121,7 @@ resource "aws_wafv2_web_acl" "this" {
 
       visibility_config {
         cloudwatch_metrics_enabled = var.cloudwatch_metrics_enabled 
-        metric_name                = "${var.waf_name}-allow-basicauth-rule"
+        metric_name                = "${var.name}-allow-basicauth-rule"
         sampled_requests_enabled   = var.sampled_requests_enabled  
       }
     }
